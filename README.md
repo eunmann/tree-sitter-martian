@@ -26,21 +26,40 @@ npx tree-sitter parse examples/example.mro
 
 ### Neovim (nvim-treesitter)
 
-```lua
-local parsers = require('nvim-treesitter.parsers').get_parser_configs()
-parsers.martian = {
-  install_info = {
-    url = 'https://github.com/eunmann/tree-sitter-martian',
-    files = { 'src/parser.c' },
-    branch = 'main',
-  },
-  filetype = 'mro',
-}
-vim.filetype.add({ extension = { mro = 'mro' } })
+This grammar isn't in the nvim-treesitter registry yet, so install it directly
+(works on any Neovim 0.11+, with or without nvim-treesitter):
+
+```sh
+git clone https://github.com/eunmann/tree-sitter-martian
+cd tree-sitter-martian && npm install
+# build the parser into Neovim's runtime parser dir
+npx tree-sitter build --output "$HOME/.config/nvim/parser/martian.so"
+# install the highlight/fold queries
+mkdir -p "$HOME/.config/nvim/queries/martian"
+cp queries/*.scm "$HOME/.config/nvim/queries/martian/"
 ```
 
-Then `:TSInstall martian`. Copy `queries/*.scm` into your nvim-treesitter
-`queries/mro/` (or rely on the plugin's query discovery).
+Then in your Neovim config:
+
+```lua
+vim.filetype.add({ extension = { mro = 'mro' } })
+vim.treesitter.language.register('martian', 'mro')
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'mro',
+  callback = function(ev) pcall(vim.treesitter.start, ev.buf, 'martian') end,
+})
+```
+
+Open a `.mro` file; use `:InspectTree` / `:Inspect` to verify. Once the grammar
+lands in the nvim-treesitter registry, `:TSInstall martian` will install it
+automatically.
+
+### Helix
+
+Add to `languages.toml` a `[[grammar]]` with `source = { git = "…", rev = "…" }`
+for `martian` and a `[[language]]` mapping `file-types = ["mro"]`, then
+`hx --grammar fetch && hx --grammar build`. Place the queries under
+`runtime/queries/martian/`.
 
 ## Layout
 
