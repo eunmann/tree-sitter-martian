@@ -1,0 +1,34 @@
+# Example Martian pipeline exercising the tree-sitter grammar.
+
+filetype bam;
+filetype fastq;
+
+stage ALIGN(
+    in  fastq    reads,
+    in  int      threads,
+    out bam      aligned   "the aligned reads"  "aligned.bam",
+    src py       "stages/align",
+) using (
+    mem_gb   = 8,
+    threads  = 4,
+    volatile = strict,
+)
+
+struct Metrics(
+    float mapped_fraction,
+    int   total_reads,
+)
+
+pipeline ALIGNER(
+    in  fastq reads,
+    out bam   aligned,
+)
+{
+    call ALIGN(
+        reads   = self.reads,
+        threads = 4,
+    )
+    return (
+        aligned = ALIGN.aligned,
+    )
+}

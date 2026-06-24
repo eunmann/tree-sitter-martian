@@ -1,0 +1,15 @@
+{
+  "name": "tree-sitter-martian",
+  "version": "0.1.0",
+  "description": "Tree-sitter grammar for the Martian (MRO) pipeline language",
+  "license": "MIT",
+  "author": "Evan Unmann",
+  "scripts": {
+    "generate": "tree-sitter generate",
+    "test": "tree-sitter test",
+    "parse": "tree-sitter parse"
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "^0.26.0"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "grammars": [
+    {
+      "name": "martian",
+      "scope": "source.mro",
+      "file-types": ["mro"],
+      "injection-regex": "^(mro|martian)$"
+    }
+  ],
+  "metadata": {
+    "version": "0.1.0",
+    "license": "MIT",
+    "description": "Tree-sitter grammar for the Martian (MRO) pipeline language",
+    "authors": [{ "name": "Evan Unmann" }]
+  }
+}

@@ -1,0 +1,75 @@
+==================
+filetype and stage
+==================
+
+filetype txt;
+
+stage HELLO(
+    in  string name,
+    out string greeting,
+    src py "stages/hello",
+)
+
+---
+
+(source_file
+  (filetype_decl
+    name: (dotted_id
+      (identifier)))
+  (stage
+    name: (identifier)
+    (in_param
+      type: (type
+        (primitive_type))
+      name: (identifier))
+    (out_param
+      type: (type
+        (primitive_type))
+      name: (identifier))
+    (src_statement
+      lang: (src_lang)
+      cmd: (string))))
+
+==================
+pipeline with call and return
+==================
+
+pipeline P(
+    in  int n,
+    out int r,
+)
+{
+    call S(
+        x = self.n,
+    )
+    return (
+        r = S.out,
+    )
+}
+
+---
+
+(source_file
+  (pipeline
+    name: (identifier)
+    (in_param
+      type: (type
+        (primitive_type))
+      name: (identifier))
+    (out_param
+      type: (type
+        (primitive_type))
+      name: (identifier))
+    (call
+      callable: (identifier)
+      (binding
+        name: (identifier)
+        (ref
+          (self
+            (identifier)))))
+    (return_statement
+      (binding
+        name: (identifier)
+        (ref
+          base: (identifier)
+          (identifier))))))

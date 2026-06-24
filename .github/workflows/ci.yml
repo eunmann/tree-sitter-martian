@@ -1,0 +1,30 @@
+name: ci
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm ci || npm install
+      - name: generate (committed parser is up to date)
+        run: |
+          npx tree-sitter generate
+          git diff --exit-status -- src || {
+            echo "::error::src/ is stale — run 'npx tree-sitter generate' and commit."
+            exit 1
+          }
+      - name: test corpus
+        run: npx tree-sitter test
+      - name: parse examples (no errors)
+        run: npx tree-sitter parse -q examples/*.mro
