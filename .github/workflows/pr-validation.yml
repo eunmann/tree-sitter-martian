@@ -45,10 +45,12 @@ jobs:
       - name: Generate parser (committed src/ is up to date)
         run: |
           npx tree-sitter generate
-          git diff --exit-code -- src || {
+          # --porcelain also catches newly-generated untracked files under src/.
+          if [ -n "$(git status --porcelain -- src)" ]; then
             echo "::error::src/ is stale — run 'npx tree-sitter generate' and commit the result."
+            git status --porcelain -- src
             exit 1
-          }
+          fi
 
       - name: Corpus & highlight tests
         run: npx tree-sitter test
@@ -72,6 +74,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: martian-lang/martian
+          # Pinned for reproducible CI. Bump deliberately when validating
+          # against newer upstream syntax.
+          ref: v4.0.15
           path: .upstream-martian
           fetch-depth: 1
 
@@ -79,4 +84,8 @@ jobs:
         run: |
           mapfile -t files < <(find .upstream-martian -name '*.mro' | sort)
           echo "Found ${#files[@]} upstream .mro files"
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "::error::no upstream .mro files found — checkout layout changed?"
+            exit 1
+          fi
           npx tree-sitter parse -q "${files[@]}"

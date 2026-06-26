@@ -1499,7 +1499,7 @@
               "members": [
                 {
                   "type": "PATTERN",
-                  "value": "[^\"\\\\]"
+                  "value": "[^\"\\\\\\n]"
                 },
                 {
                   "type": "PATTERN",

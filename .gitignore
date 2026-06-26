@@ -7,5 +7,5 @@ prebuilds/
 *.wasm
 *.log
 
-# Local upstream checkout used by `make upstream-test` / CI.
+# Upstream Martian checkout created by the CI upstream-corpus job.
 .upstream-martian/

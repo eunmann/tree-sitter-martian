@@ -4,7 +4,6 @@
   "description": "Tree-sitter grammar for the Martian (MRO) pipeline language",
   "license": "MIT",
   "author": "Evan Unmann",
-  "main": "grammar.js",
   "keywords": [
     "tree-sitter",
     "parser",

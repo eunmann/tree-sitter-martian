@@ -1,6 +1,6 @@
 TS := npx tree-sitter
 
-.PHONY: all generate test lint format format-check parse upstream-test clean help
+.PHONY: all generate test lint format parse upstream-test clean help
 
 all: generate test ## Generate the parser and run the test suite
 
@@ -24,7 +24,8 @@ parse: generate ## Parse the bundled examples (must be error-free)
 # Override the path: make upstream-test MARTIAN=/path/to/martian
 MARTIAN ?= ../martian
 upstream-test: generate ## Parse every .mro in a local martian checkout
-	@find $(MARTIAN) -name '*.mro' -print0 | xargs -0 $(TS) parse -q
+	@test -d "$(MARTIAN)" || { echo "MARTIAN dir '$(MARTIAN)' not found; set MARTIAN=/path/to/martian"; exit 1; }
+	@find $(MARTIAN) -name '*.mro' -print0 | xargs -0 -r $(TS) parse -q
 
 clean: ## Remove build artifacts
 	rm -rf build *.wasm

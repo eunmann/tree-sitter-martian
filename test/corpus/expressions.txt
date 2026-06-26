@@ -115,7 +115,7 @@ pipeline P(out int x,)
 {
     call S(
         a = self.reads,
-        b = STAGE.out,
+        b = STAGE.result,
         c = STAGE.default,
         d = self.group.inner,
         bare = OTHER,

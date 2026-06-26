@@ -231,9 +231,12 @@ module.exports = grammar({
           '"',
           repeat(
             choice(
-              // Upstream's tokenizer accepts any non-escape, non-quote byte —
-              // including newlines — so string literals may span lines.
-              /[^"\\]/,
+              // Exclude newlines so an unterminated string stops at end of
+              // line. Upstream's batch tokenizer technically allows newlines in
+              // strings, but no real .mro uses multi-line strings, and confining
+              // an open quote to one line keeps incremental highlighting from
+              // corrupting the rest of the file mid-edit.
+              /[^"\\\n]/,
               /\\[abfnrtv\\"]/,
               /\\[0-7]{3}/,
               /\\x[0-9a-fA-F]{2}/,

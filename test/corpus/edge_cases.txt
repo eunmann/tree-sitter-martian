@@ -61,35 +61,6 @@ stage S(
         (integer)))))
 
 ================================================================
-multi-line string literal
-================================================================
-
-filetype x;
-
-stage S(
-    out int x  "first line
-second line",
-    src py "s",
-)
-
----
-
-(source_file
-  (filetype_decl
-    name: (dotted_id
-      (identifier)))
-  (stage
-    name: (identifier)
-    (out_param
-      type: (type
-        (primitive_type))
-      name: (identifier)
-      help: (string))
-    (src_statement
-      lang: (src_lang)
-      cmd: (string))))
-
-================================================================
 string with escapes
 ================================================================
 

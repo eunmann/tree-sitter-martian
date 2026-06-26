@@ -11,22 +11,21 @@ jobs:
   release:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # Secrets cannot be referenced in `if:`, so hoist into env and gate on env.
-    env:
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: npm
-          registry-url: https://registry.npmjs.org
       - run: npm ci
 
       - name: Verify generate + tests are green
         run: |
           npx tree-sitter generate
-          git diff --exit-code -- src
+          if [ -n "$(git status --porcelain -- src)" ]; then
+            echo "::error::src/ is stale — regenerate and commit before tagging."
+            exit 1
+          fi
           npx tree-sitter test
 
       - name: Build WASM parser
@@ -39,10 +38,7 @@ jobs:
           fail_on_unmatched_files: true
           generate_release_notes: true
 
-      # Publishing to npm requires language bindings (run `tree-sitter init`).
-      # Gated on NPM_TOKEN so the step is a no-op until a token is configured.
-      - name: Publish to npm (if NPM_TOKEN set)
-        if: ${{ env.NPM_TOKEN != '' }}
-        run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ env.NPM_TOKEN }}
+  # npm publishing is intentionally omitted: this package has no language
+  # bindings yet (run `tree-sitter init` to scaffold them), so a published
+  # package would not be requireable. Add an npm-publish job — with
+  # `permissions: id-token: write` if using `--provenance` — once bindings exist.

@@ -56,7 +56,8 @@ Martian checkout — the same fidelity check CI runs against
 
 - **Corpus tests** (`test/corpus/*.txt`) assert the parse tree for a snippet —
   declarations, pipelines, structs, types, expressions, edge cases (keywords
-  used as identifiers, multi-line strings), and intentional `:error` cases.
+  used as identifiers, `memgb`/`vmemgb` resources, string escapes), and
+  intentional `:error` cases.
 - **Highlight tests** (`test/highlight/*.mro`) assert capture names produced by
   `queries/highlights.scm` using inline `# <-`/`# ^` annotations.
 
