@@ -1,0 +1,146 @@
+================================================================
+pipeline with calls modifiers and retain
+================================================================
+
+pipeline P(
+    in  fastq reads,
+    out bam   aligned,
+)
+{
+    call local preflight ALIGN(
+        reads = self.reads,
+    )
+    call BUILD as BUILDER(
+        x = ALIGN.aligned,
+    ) using (
+        volatile = true,
+        disabled = self.skip,
+    )
+    return (
+        aligned = ALIGN.aligned,
+    )
+    retain (
+        ALIGN.aligned,
+    )
+}
+
+---
+
+(source_file
+  (pipeline
+    name: (identifier)
+    (in_param
+      type: (type
+        (dotted_id
+          (identifier)))
+      name: (identifier))
+    (out_param
+      type: (type
+        (dotted_id
+          (identifier)))
+      name: (identifier))
+    (call
+      (modifier)
+      (modifier)
+      callable: (identifier)
+      (binding
+        name: (identifier)
+        (ref
+          (self
+            (identifier)))))
+    (call
+      callable: (identifier)
+      alias: (identifier)
+      (binding
+        name: (identifier)
+        (ref
+          base: (identifier)
+          (identifier)))
+      (call_using
+        (call_modifier
+          (true))
+        (call_modifier
+          (ref
+            (self
+              (identifier))))))
+    (return_statement
+      (binding
+        name: (identifier)
+        (ref
+          base: (identifier)
+          (identifier))))
+    (retain
+      (ref
+        base: (identifier)
+        (identifier)))))
+
+================================================================
+pipeline with only return
+================================================================
+
+pipeline EMPTY(
+    out int x,
+)
+{
+    return (
+        x = 0,
+    )
+}
+
+---
+
+(source_file
+  (pipeline
+    name: (identifier)
+    (out_param
+      type: (type
+        (primitive_type))
+      name: (identifier))
+    (return_statement
+      (binding
+        name: (identifier)
+        (integer)))))
+
+================================================================
+map call with split bindings and wildcard
+================================================================
+
+pipeline P(
+    out int x,
+)
+{
+    map call WORKER(
+        item = split [1, 2, 3],
+        *    = self,
+    )
+    return (
+        x = 1,
+    )
+}
+
+---
+
+(source_file
+  (pipeline
+    name: (identifier)
+    (out_param
+      type: (type
+        (primitive_type))
+      name: (identifier))
+    (call
+      callable: (identifier)
+      (binding
+        name: (identifier)
+        (split_expr
+          (array
+            (integer)
+            (integer)
+            (integer))))
+      (wildcard_binding
+        (ref
+          (self))))
+    (return_statement
+      (binding
+        name: (identifier)
+        (integer)))))
+

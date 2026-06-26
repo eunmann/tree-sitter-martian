@@ -1,0 +1,47 @@
+================================================================
+stage missing required src statement
+:error
+================================================================
+
+stage S(
+    out int x,
+)
+
+---
+
+(source_file
+  (ERROR
+    (identifier)
+    (out_param
+      type: (type
+        (primitive_type))
+      name: (identifier))))
+
+================================================================
+pipeline missing return statement
+:error
+================================================================
+
+pipeline P(
+    out int x,
+)
+{
+    call S(
+        x = 1,
+    )
+}
+
+---
+
+(ERROR
+  (identifier)
+  (out_param
+    type: (type
+      (primitive_type))
+    name: (identifier))
+  (call
+    callable: (identifier)
+    (binding
+      name: (identifier)
+      (integer))))
+

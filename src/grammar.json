@@ -1361,10 +1361,6 @@
                   {
                     "type": "STRING",
                     "value": "path"
-                  },
-                  {
-                    "type": "STRING",
-                    "value": "file"
                   }
                 ]
               },

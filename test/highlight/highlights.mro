@@ -1,0 +1,56 @@
+@include "common.mro"
+# <- keyword.import
+#        ^ string
+
+filetype bam;
+# <- keyword
+#        ^ type
+
+stage ALIGN(
+# <- keyword
+#     ^ type
+    in  fastq reads,
+#   ^ keyword
+#       ^ type
+#             ^ variable.parameter
+    out int   count   "help text",
+#   ^ keyword
+#       ^ type.builtin
+#                     ^ string
+    src py    "stages/align",
+#   ^ keyword
+#       ^ keyword
+#             ^ string
+)
+
+pipeline RUN(
+# <- keyword
+#        ^ function
+    out bam result,
+)
+{
+    call ALIGN(
+#   ^ keyword
+#        ^ function.call
+        reads = self.reads,
+#       ^ property
+#               ^ variable.builtin
+    )
+    return (
+#   ^ keyword
+        result = ALIGN.count,
+#       ^ property
+#                ^ variable
+    )
+}
+
+struct Paths(
+# <- keyword
+#      ^ type
+    file raw,
+#   ^ type.builtin
+    path dir,
+#   ^ type.builtin
+    bam  other,
+#   ^ type
+)

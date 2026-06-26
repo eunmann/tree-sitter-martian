@@ -6,3 +6,6 @@ prebuilds/
 *.dylib
 *.wasm
 *.log
+
+# Upstream Martian checkout created by the CI upstream-corpus job.
+.upstream-martian/

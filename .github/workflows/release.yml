@@ -1,0 +1,44 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+
+      - name: Verify generate + tests are green
+        run: |
+          npx tree-sitter generate
+          if [ -n "$(git status --porcelain -- src)" ]; then
+            echo "::error::src/ is stale — regenerate and commit before tagging."
+            exit 1
+          fi
+          npx tree-sitter test
+
+      - name: Build WASM parser
+        run: npx tree-sitter build --wasm --output tree-sitter-martian.wasm
+
+      - name: Create GitHub release with WASM artifact
+        uses: softprops/action-gh-release@v2
+        with:
+          files: tree-sitter-martian.wasm
+          fail_on_unmatched_files: true
+          generate_release_notes: true
+
+  # npm publishing is intentionally omitted: this package has no language
+  # bindings yet (run `tree-sitter init` to scaffold them), so a published
+  # package would not be requireable. Add an npm-publish job — with
+  # `permissions: id-token: write` if using `--provenance` — once bindings exist.

@@ -1,0 +1,126 @@
+================================================================
+all primitive types
+================================================================
+
+struct T(
+    int    a,
+    float  b,
+    string c,
+    bool   d,
+    path   e,
+)
+
+---
+
+(source_file
+  (struct
+    name: (identifier)
+    (struct_field
+      type: (type
+        (primitive_type))
+      name: (identifier))
+    (struct_field
+      type: (type
+        (primitive_type))
+      name: (identifier))
+    (struct_field
+      type: (type
+        (primitive_type))
+      name: (identifier))
+    (struct_field
+      type: (type
+        (primitive_type))
+      name: (identifier))
+    (struct_field
+      type: (type
+        (primitive_type))
+      name: (identifier))))
+
+================================================================
+file and user types are dotted ids
+================================================================
+
+struct T(
+    file        raw,
+    bam         aligned,
+    my.name.spc custom,
+)
+
+---
+
+(source_file
+  (struct
+    name: (identifier)
+    (struct_field
+      type: (type
+        (dotted_id
+          (identifier)))
+      name: (identifier))
+    (struct_field
+      type: (type
+        (dotted_id
+          (identifier)))
+      name: (identifier))
+    (struct_field
+      type: (type
+        (dotted_id
+          (identifier)
+          (identifier)
+          (identifier)))
+      name: (identifier))))
+
+================================================================
+array and nested map types
+================================================================
+
+struct T(
+    int[]          a,
+    bam[][]        b,
+    map            m,
+    map<int>       mi,
+    map<string[]>  ms,
+    map<int>[]     mia,
+)
+
+---
+
+(source_file
+  (struct
+    name: (identifier)
+    (struct_field
+      type: (type
+        (primitive_type)
+        (array_suffix))
+      name: (identifier))
+    (struct_field
+      type: (type
+        (dotted_id
+          (identifier))
+        (array_suffix)
+        (array_suffix))
+      name: (identifier))
+    (struct_field
+      type: (type
+        (map_type))
+      name: (identifier))
+    (struct_field
+      type: (type
+        (map_type
+          (type
+            (primitive_type))))
+      name: (identifier))
+    (struct_field
+      type: (type
+        (map_type
+          (type
+            (primitive_type)
+            (array_suffix))))
+      name: (identifier))
+    (struct_field
+      type: (type
+        (map_type
+          (type
+            (primitive_type)))
+        (array_suffix))
+      name: (identifier))))
+

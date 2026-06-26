@@ -1,0 +1,5 @@
+# Generated parser artifacts.
+src/
+# Vendored / lockfiles.
+package-lock.json
+node_modules/
