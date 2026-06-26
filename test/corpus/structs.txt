@@ -1,0 +1,32 @@
+================================================================
+struct with mixed fields
+================================================================
+
+struct Metrics(
+    float mapped_fraction,
+    int   total_reads  "total read count",
+    bam   alignment    "the bam"  "out.bam",
+)
+
+---
+
+(source_file
+  (struct
+    name: (identifier)
+    (struct_field
+      type: (type
+        (primitive_type))
+      name: (identifier))
+    (struct_field
+      type: (type
+        (primitive_type))
+      name: (identifier)
+      help: (string))
+    (struct_field
+      type: (type
+        (dotted_id
+          (identifier)))
+      name: (identifier)
+      help: (string)
+      out_name: (string))))
+

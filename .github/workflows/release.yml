@@ -1,0 +1,48 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Secrets cannot be referenced in `if:`, so hoist into env and gate on env.
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+
+      - name: Verify generate + tests are green
+        run: |
+          npx tree-sitter generate
+          git diff --exit-code -- src
+          npx tree-sitter test
+
+      - name: Build WASM parser
+        run: npx tree-sitter build --wasm --output tree-sitter-martian.wasm
+
+      - name: Create GitHub release with WASM artifact
+        uses: softprops/action-gh-release@v2
+        with:
+          files: tree-sitter-martian.wasm
+          fail_on_unmatched_files: true
+          generate_release_notes: true
+
+      # Publishing to npm requires language bindings (run `tree-sitter init`).
+      # Gated on NPM_TOKEN so the step is a no-op until a token is configured.
+      - name: Publish to npm (if NPM_TOKEN set)
+        if: ${{ env.NPM_TOKEN != '' }}
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ env.NPM_TOKEN }}

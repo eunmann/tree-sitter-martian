@@ -25,6 +25,11 @@
 (primitive_type) @type.builtin
 (type (dotted_id) @type)
 
+; `file` is a builtin file type but lexes as a plain identifier (no `file`
+; keyword in Martian), so highlight it as builtin to match `path`/`int`/etc.
+((type (dotted_id (identifier) @type.builtin))
+ (#eq? @type.builtin "file"))
+
 ; Declarations
 (stage name: (identifier) @type)
 (struct name: (identifier) @type)

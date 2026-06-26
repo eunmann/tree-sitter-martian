@@ -1,0 +1,166 @@
+================================================================
+literals
+================================================================
+
+pipeline P(out int x,)
+{
+    call S(
+        i = 42,
+        f = -3.14,
+        e = 1e10,
+        s = "hi",
+        t = true,
+        f2 = false,
+        n = null,
+    )
+    return (x = 0,)
+}
+
+---
+
+(source_file
+  (pipeline
+    name: (identifier)
+    (out_param
+      type: (type
+        (primitive_type))
+      name: (identifier))
+    (call
+      callable: (identifier)
+      (binding
+        name: (identifier)
+        (integer))
+      (binding
+        name: (identifier)
+        (float))
+      (binding
+        name: (identifier)
+        (float))
+      (binding
+        name: (identifier)
+        (string))
+      (binding
+        name: (identifier)
+        (true))
+      (binding
+        name: (identifier)
+        (false))
+      (binding
+        name: (identifier)
+        (null)))
+    (return_statement
+      (binding
+        name: (identifier)
+        (integer)))))
+
+================================================================
+arrays and maps
+================================================================
+
+pipeline P(out int x,)
+{
+    call S(
+        empty_arr = [],
+        nums      = [1, 2, 3],
+        empty_map = {},
+        nested    = {"k": [1, {"a": 2}]},
+    )
+    return (x = 0,)
+}
+
+---
+
+(source_file
+  (pipeline
+    name: (identifier)
+    (out_param
+      type: (type
+        (primitive_type))
+      name: (identifier))
+    (call
+      callable: (identifier)
+      (binding
+        name: (identifier)
+        (array))
+      (binding
+        name: (identifier)
+        (array
+          (integer)
+          (integer)
+          (integer)))
+      (binding
+        name: (identifier)
+        (map))
+      (binding
+        name: (identifier)
+        (map
+          (pair
+            key: (string)
+            value: (array
+              (integer)
+              (map
+                (pair
+                  key: (string)
+                  value: (integer))))))))
+    (return_statement
+      (binding
+        name: (identifier)
+        (integer)))))
+
+================================================================
+references self call and default
+================================================================
+
+pipeline P(out int x,)
+{
+    call S(
+        a = self.reads,
+        b = STAGE.out,
+        c = STAGE.default,
+        d = self.group.inner,
+        bare = OTHER,
+    )
+    return (x = 0,)
+}
+
+---
+
+(source_file
+  (pipeline
+    name: (identifier)
+    (out_param
+      type: (type
+        (primitive_type))
+      name: (identifier))
+    (call
+      callable: (identifier)
+      (binding
+        name: (identifier)
+        (ref
+          (self
+            (identifier))))
+      (binding
+        name: (identifier)
+        (ref
+          base: (identifier)
+          (identifier)))
+      (binding
+        name: (identifier)
+        (ref
+          base: (identifier)
+          (identifier)))
+      (binding
+        name: (identifier)
+        (ref
+          (self
+            (identifier)
+            (identifier))))
+      (binding
+        name: (identifier)
+        (ref
+          base: (identifier))))
+    (return_statement
+      (binding
+        name: (identifier)
+        (integer)))))
+

@@ -6,3 +6,6 @@ prebuilds/
 *.dylib
 *.wasm
 *.log
+
+# Local upstream checkout used by `make upstream-test` / CI.
+.upstream-martian/

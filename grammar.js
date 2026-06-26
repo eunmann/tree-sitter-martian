@@ -2,7 +2,12 @@
 // Tree-sitter grammar for the Martian (MRO) pipeline language.
 // Mirrors github.com/martian-lang/martian/martian/syntax/grammar.y + tokenizer.go.
 
-const PRIMITIVE_TYPES = ['int', 'float', 'string', 'bool', 'path', 'file'];
+// Primitive type *keywords* — exactly the set the upstream tokenizer emits as
+// dedicated tokens (tokenizer.go: INT/STRING/PATH/FLOAT/BOOL; `map` is handled
+// separately by map_type). Note `file` is deliberately absent: Martian has no
+// `file` keyword — it lexes as a plain identifier and is only recognised as a
+// builtin file type during semantic analysis, so it parses as a `dotted_id`.
+const PRIMITIVE_TYPES = ['int', 'float', 'string', 'bool', 'path'];
 
 function commaSep1(rule) {
   return seq(rule, repeat(seq(',', rule)));
@@ -20,8 +25,7 @@ module.exports = grammar({
 
     include: ($) => seq('@include', field('path', $.string)),
 
-    _declaration: ($) =>
-      choice($.filetype_decl, $.stage, $.pipeline, $.struct),
+    _declaration: ($) => choice($.filetype_decl, $.stage, $.pipeline, $.struct),
 
     filetype_decl: ($) => seq('filetype', field('name', $.dotted_id), ';'),
 
@@ -41,14 +45,22 @@ module.exports = grammar({
       ),
 
     in_param: ($) =>
-      seq('in', field('type', $.type), field('name', $.identifier), optional(field('help', $.string)), ','),
+      seq(
+        'in',
+        field('type', $.type),
+        field('name', $.identifier),
+        optional(field('help', $.string)),
+        ',',
+      ),
 
     out_param: ($) =>
       seq(
         'out',
         field('type', $.type),
         optional(field('name', $.identifier)),
-        optional(seq(field('help', $.string), optional(field('out_name', $.string)))),
+        optional(
+          seq(field('help', $.string), optional(field('out_name', $.string))),
+        ),
         ',',
       ),
 
@@ -57,12 +69,27 @@ module.exports = grammar({
     src_lang: ($) => choice('py', 'exec', 'comp', 'compiled'),
 
     split: ($) =>
-      seq('split', optional('using'), '(', repeat($.in_param), repeat($.out_param), ')'),
+      seq(
+        'split',
+        optional('using'),
+        '(',
+        repeat($.in_param),
+        repeat($.out_param),
+        ')',
+      ),
 
     using_resources: ($) => seq('using', '(', repeat($.resource), ')'),
     resource: ($) =>
       choice(
-        seq(field('key', choice('threads', 'mem_gb', 'memgb', 'vmem_gb', 'vmemgb')), '=', $._number, ','),
+        seq(
+          field(
+            'key',
+            choice('threads', 'mem_gb', 'memgb', 'vmem_gb', 'vmemgb'),
+          ),
+          '=',
+          $._number,
+          ',',
+        ),
         seq(field('key', 'special'), '=', $.string, ','),
         seq(field('key', 'volatile'), '=', choice('strict', 'false'), ','),
       ),
@@ -90,12 +117,20 @@ module.exports = grammar({
 
     // ---- struct ----
     struct: ($) =>
-      seq('struct', field('name', $.identifier), '(', repeat($.struct_field), ')'),
+      seq(
+        'struct',
+        field('name', $.identifier),
+        '(',
+        repeat($.struct_field),
+        ')',
+      ),
     struct_field: ($) =>
       seq(
         field('type', $.type),
         field('name', $.identifier),
-        optional(seq(field('help', $.string), optional(field('out_name', $.string)))),
+        optional(
+          seq(field('help', $.string), optional(field('out_name', $.string))),
+        ),
         ',',
       ),
 
@@ -117,7 +152,12 @@ module.exports = grammar({
     call_using: ($) => seq('using', '(', repeat($.call_modifier), ')'),
     call_modifier: ($) =>
       choice(
-        seq(field('key', choice('local', 'preflight', 'volatile')), '=', $._bool, ','),
+        seq(
+          field('key', choice('local', 'preflight', 'volatile')),
+          '=',
+          $._bool,
+          ',',
+        ),
         seq(field('key', 'disabled'), '=', $.ref, ','),
       ),
 
@@ -129,17 +169,32 @@ module.exports = grammar({
 
     // ---- expressions ----
     _expr: ($) =>
-      choice($.float, $.integer, $.string, $._bool, $.null, $.array, $.map, $.ref),
+      choice(
+        $.float,
+        $.integer,
+        $.string,
+        $._bool,
+        $.null,
+        $.array,
+        $.map,
+        $.ref,
+      ),
 
     _bool: ($) => choice($.true, $.false),
     true: ($) => 'true',
     false: ($) => 'false',
     null: ($) => 'null',
 
-    array: ($) => seq('[', optional(seq(commaSep1($._expr), optional(','))), ']'),
+    array: ($) =>
+      seq('[', optional(seq(commaSep1($._expr), optional(','))), ']'),
 
     map: ($) => seq('{', optional(seq(commaSep1($.pair), optional(','))), '}'),
-    pair: ($) => seq(field('key', choice($.string, $.identifier)), ':', field('value', $._expr)),
+    pair: ($) =>
+      seq(
+        field('key', choice($.string, $.identifier)),
+        ':',
+        field('value', $._expr),
+      ),
 
     ref: ($) =>
       choice(
@@ -176,7 +231,9 @@ module.exports = grammar({
           '"',
           repeat(
             choice(
-              /[^"\\\n]/,
+              // Upstream's tokenizer accepts any non-escape, non-quote byte —
+              // including newlines — so string literals may span lines.
+              /[^"\\]/,
               /\\[abfnrtv\\"]/,
               /\\[0-7]{3}/,
               /\\x[0-9a-fA-F]{2}/,

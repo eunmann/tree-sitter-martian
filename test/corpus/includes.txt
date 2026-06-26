@@ -1,0 +1,72 @@
+================================================================
+single include
+================================================================
+
+@include "common.mro"
+
+filetype bam;
+
+---
+
+(source_file
+  (include
+    path: (string))
+  (filetype_decl
+    name: (dotted_id
+      (identifier))))
+
+================================================================
+multiple includes before declarations
+================================================================
+
+@include "a.mro"
+@include "sub/b.mro"
+
+pipeline P(
+    out int x,
+)
+{
+    return (
+        x = 1,
+    )
+}
+
+---
+
+(source_file
+  (include
+    path: (string))
+  (include
+    path: (string))
+  (pipeline
+    name: (identifier)
+    (out_param
+      type: (type
+        (primitive_type))
+      name: (identifier))
+    (return_statement
+      (binding
+        name: (identifier)
+        (integer)))))
+
+================================================================
+include then top-level call
+================================================================
+
+@include "stages.mro"
+
+call HELLO(
+    name = "world",
+)
+
+---
+
+(source_file
+  (include
+    path: (string))
+  (call
+    callable: (identifier)
+    (binding
+      name: (identifier)
+      (string))))
+

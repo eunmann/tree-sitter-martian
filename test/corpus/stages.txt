@@ -1,0 +1,164 @@
+================================================================
+stage with help text and out name
+================================================================
+
+stage ALIGN(
+    in  fastq reads,
+    in  int   threads  "number of threads",
+    out bam   aligned  "aligned reads"  "aligned.bam",
+    src py    "stages/align",
+)
+
+---
+
+(source_file
+  (stage
+    name: (identifier)
+    (in_param
+      type: (type
+        (dotted_id
+          (identifier)))
+      name: (identifier))
+    (in_param
+      type: (type
+        (primitive_type))
+      name: (identifier)
+      help: (string))
+    (out_param
+      type: (type
+        (dotted_id
+          (identifier)))
+      name: (identifier)
+      help: (string)
+      out_name: (string))
+    (src_statement
+      lang: (src_lang)
+      cmd: (string))))
+
+================================================================
+stage with split and resources
+================================================================
+
+stage CHUNKER(
+    in  fastq[] reads,
+    out json    result,
+    src comp    "chunker",
+) split using (
+    in  fastq chunk,
+    out json  summary,
+) using (
+    mem_gb   = 8,
+    threads  = 4,
+    vmem_gb  = 16,
+    special  = "highmem",
+    volatile = strict,
+)
+
+---
+
+(source_file
+  (stage
+    name: (identifier)
+    (in_param
+      type: (type
+        (dotted_id
+          (identifier))
+        (array_suffix))
+      name: (identifier))
+    (out_param
+      type: (type
+        (dotted_id
+          (identifier)))
+      name: (identifier))
+    (src_statement
+      lang: (src_lang)
+      cmd: (string))
+    (split
+      (in_param
+        type: (type
+          (dotted_id
+            (identifier)))
+        name: (identifier))
+      (out_param
+        type: (type
+          (dotted_id
+            (identifier)))
+        name: (identifier)))
+    (using_resources
+      (resource
+        (integer))
+      (resource
+        (integer))
+      (resource
+        (integer))
+      (resource
+        (string))
+      (resource))))
+
+================================================================
+stage with retain
+================================================================
+
+stage S(
+    out bam aligned,
+    src py  "s",
+) retain (
+    aligned,
+)
+
+---
+
+(source_file
+  (stage
+    name: (identifier)
+    (out_param
+      type: (type
+        (dotted_id
+          (identifier)))
+      name: (identifier))
+    (src_statement
+      lang: (src_lang)
+      cmd: (string))
+    (retain
+      (ref
+        base: (identifier)))))
+
+================================================================
+split without using keyword
+================================================================
+
+stage S(
+    in  int x,
+    out int y,
+    src py  "s",
+) split (
+    in  int chunk,
+    out int part,
+)
+
+---
+
+(source_file
+  (stage
+    name: (identifier)
+    (in_param
+      type: (type
+        (primitive_type))
+      name: (identifier))
+    (out_param
+      type: (type
+        (primitive_type))
+      name: (identifier))
+    (src_statement
+      lang: (src_lang)
+      cmd: (string))
+    (split
+      (in_param
+        type: (type
+          (primitive_type))
+        name: (identifier))
+      (out_param
+        type: (type
+          (primitive_type))
+        name: (identifier)))))
+

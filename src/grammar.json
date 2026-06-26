@@ -1361,10 +1361,6 @@
                   {
                     "type": "STRING",
                     "value": "path"
-                  },
-                  {
-                    "type": "STRING",
-                    "value": "file"
                   }
                 ]
               },
@@ -1503,7 +1499,7 @@
               "members": [
                 {
                   "type": "PATTERN",
-                  "value": "[^\"\\\\\\n]"
+                  "value": "[^\"\\\\]"
                 },
                 {
                   "type": "PATTERN",

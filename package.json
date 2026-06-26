@@ -4,12 +4,30 @@
   "description": "Tree-sitter grammar for the Martian (MRO) pipeline language",
   "license": "MIT",
   "author": "Evan Unmann",
+  "main": "grammar.js",
+  "keywords": [
+    "tree-sitter",
+    "parser",
+    "martian",
+    "mro"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eunmann/tree-sitter-martian.git"
+  },
   "scripts": {
     "generate": "tree-sitter generate",
     "test": "tree-sitter test",
-    "parse": "tree-sitter parse"
+    "parse": "tree-sitter parse",
+    "lint": "eslint grammar.js eslint.config.js",
+    "lint:fix": "eslint --fix grammar.js eslint.config.js",
+    "format": "prettier --write \"**/*.{js,json,md}\"",
+    "format:check": "prettier --check \"**/*.{js,json,md}\""
   },
   "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "eslint": "^9.18.0",
+    "prettier": "^3.4.2",
     "tree-sitter-cli": "^0.26.0"
   }
 }

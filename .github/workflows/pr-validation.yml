@@ -1,0 +1,82 @@
+name: PR Validation
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint & format
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: ESLint (grammar.js)
+        run: npm run lint
+      - name: Prettier (formatting)
+        run: npm run format:check
+
+  test:
+    name: Generate & test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+
+      - name: Generate parser (committed src/ is up to date)
+        run: |
+          npx tree-sitter generate
+          git diff --exit-code -- src || {
+            echo "::error::src/ is stale — run 'npx tree-sitter generate' and commit the result."
+            exit 1
+          }
+
+      - name: Corpus & highlight tests
+        run: npx tree-sitter test
+
+      - name: Parse examples (must be error-free)
+        run: npx tree-sitter parse -q examples/*.mro
+
+  upstream-corpus:
+    name: Upstream Martian corpus
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+
+      - name: Check out martian-lang/martian
+        uses: actions/checkout@v4
+        with:
+          repository: martian-lang/martian
+          path: .upstream-martian
+          fetch-depth: 1
+
+      - name: Parse every upstream .mro file (no parse errors)
+        run: |
+          mapfile -t files < <(find .upstream-martian -name '*.mro' | sort)
+          echo "Found ${#files[@]} upstream .mro files"
+          npx tree-sitter parse -q "${files[@]}"
